@@ -90,67 +90,71 @@ def get_trains(
         started = False
 
         while True:
-            trains = ktrains.search_train(dep, arr, date, time, available_only=False)
-
-            # Filter out trains that are not in train_codes
-            trains = [train for train in trains if train.train_number in train_nos]
-
-            if not started:
-                manage_start(
-                    trains, email_sender, email_receivers, email_password, notify, mode
-                )
-                started = True
-
-            for train in trains:
-                was_available = train_availability[train.train_number]
-                seat = None
-                ReserveOption = (
-                    ReserveOptionKorail if mode == "korail" else ReserveOptionSRT
-                )
-                if seat_type == "R" and train.general_seat_available():
-                    seat = ReserveOption.GENERAL_ONLY
-                elif seat_type == "S" and train.special_seat_available():
-                    seat = ReserveOption.SPECIAL_ONLY
-                elif seat_type == "B" and train.seat_available():
-                    seat = ReserveOption.GENERAL_FIRST
-                else:
+            try:
+                trains = ktrains.search_train(dep, arr, date, time, available_only=False)
+    
+                # Filter out trains that are not in train_codes
+                trains = [train for train in trains if train.train_number in train_nos]
+    
+                if not started:
+                    manage_start(
+                        trains, email_sender, email_receivers, email_password, notify, mode
+                    )
+                    started = True
+    
+                for train in trains:
+                    was_available = train_availability[train.train_number]
                     seat = None
-                if not was_available and seat != None:
-                    if reserve:
-                        if mode == "korail":
-                            ktrains.reserve(train, option=seat)
-                        elif mode == "srt":
-                            ktrains.reserve(train, special_seat=seat)
-                        manage_reservation(
-                            train,
-                            email_sender,
-                            email_receivers,
-                            email_password,
-                            notify,
-                            mode,
-                        )
-                        print("Reserved 1 ticket!")
-                        tickets_reserved += 1
-                        if tickets_reserved >= number_of_tickets:
-                            print("Reserved all tickets. Exiting...")
-                            return
+                    ReserveOption = (
+                        ReserveOptionKorail if mode == "korail" else ReserveOptionSRT
+                    )
+                    if seat_type == "R" and train.general_seat_available():
+                        seat = ReserveOption.GENERAL_ONLY
+                    elif seat_type == "S" and train.special_seat_available():
+                        seat = ReserveOption.SPECIAL_ONLY
+                    elif seat_type == "B" and train.seat_available():
+                        seat = ReserveOption.GENERAL_FIRST
                     else:
-                        manage_available(
+                        seat = None
+                    if not was_available and seat != None:
+                        if reserve:
+                            if mode == "korail":
+                                ktrains.reserve(train, option=seat)
+                            elif mode == "srt":
+                                ktrains.reserve(train, special_seat=seat)
+                            manage_reservation(
+                                train,
+                                email_sender,
+                                email_receivers,
+                                email_password,
+                                notify,
+                                mode,
+                            )
+                            print("Reserved 1 ticket!")
+                            tickets_reserved += 1
+                            if tickets_reserved >= number_of_tickets:
+                                print("Reserved all tickets. Exiting...")
+                                return
+                        else:
+                            manage_available(
+                                train, email_sender, email_receivers, email_password, notify
+                            )
+                        train_availability[train.train_number] = True
+    
+                    elif was_available and not train.seat_available():
+                        manage_unavailable(
                             train, email_sender, email_receivers, email_password, notify
                         )
-                    train_availability[train.train_number] = True
-
-                elif was_available and not train.seat_available():
-                    manage_unavailable(
-                        train, email_sender, email_receivers, email_password, notify
-                    )
-                    train_availability[train.train_number] = False
-                    total_tries += 1
-                    if total_tries >= number_of_tries:
-                        print(f"Max tries reached: {number_of_tries}. Exiting...")
-                        return
-                else:
-                    pass  # do nothing
+                        train_availability[train.train_number] = False
+                        total_tries += 1
+                        if total_tries >= number_of_tries:
+                            print(f"Max tries reached: {number_of_tries}. Exiting...")
+                            return
+                    else:
+                        pass  # do nothing
+            except SRTResponseError as e:
+                if "사용자가 많아 접속이" not in str(e):
+                    raise e
 
             # sleep for timeout seconds
             python_time.sleep(timeout)
