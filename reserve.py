@@ -5,6 +5,7 @@ from typing import List
 import time as python_time
 import argparse
 
+from ktrains.srt.errors import SRTResponseError
 from ktrains.korail.korail import AdultPassenger, Korail
 from ktrains.korail.korail import ReserveOption as ReserveOptionKorail
 from ktrains.srt.seat_type import SeatType as ReserveOptionSRT
