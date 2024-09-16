@@ -34,7 +34,7 @@ def get_trains(
     reserve: bool = True,
     number_of_tickets: int = 1,
     number_of_tries: int = 10,
-    timeout: int = 5,
+    timeout: int = 2,
     email_sender: str = None,
     email_password: str = None,
     seat_type: str = "B",
@@ -183,7 +183,7 @@ if __name__ == "__main__":
     parser.add_argument("--reserve", type=str, default="False")
     parser.add_argument("--number-of-tickets", type=int, default=1)
     parser.add_argument("--number-of-tries", type=int, default=10)
-    parser.add_argument("--timeout", type=int, default=5)
+    parser.add_argument("--timeout", type=int, default=2)
     parser.add_argument("--email-sender", type=str, default=None)
     parser.add_argument("--email-password", type=str, default=None)
     parser.add_argument("--seat-type", type=str, default="B")
