@@ -5,11 +5,12 @@ from typing import List
 import time as python_time
 import argparse
 
+from SRT import SRT as SRTClient
+
 from ktrains.srt.errors import SRTResponseError
 from ktrains.korail.korail import AdultPassenger, Korail
 from ktrains.korail.korail import ReserveOption as ReserveOptionKorail
 from ktrains.srt.seat_type import SeatType as ReserveOptionSRT
-from ktrains.srt.srt import SRT
 from ktrains.utils import save_to_log
 from ktrains.manage import (
     manage_available,
@@ -76,7 +77,7 @@ def get_trains(
         if mode == "korail":
             ktrains = Korail(id, pw, auto_login=True)
         elif mode == "srt":
-            ktrains = SRT(id, pw, auto_login=True)
+            ktrains = SRTClient(id, pw, auto_login=True)
         else:
             raise ValueError(f"Invalid mode: {mode}. Must be one of korail or srt.")
 

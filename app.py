@@ -8,10 +8,10 @@ _ = gettext.gettext
 import pandas as pd
 import streamlit as st
 from st_aggrid import AgGrid, GridOptionsBuilder
+from SRT import SRT as SRTClient
 import streamlit.components.v1 as components
 
 from ktrains.korail.korail import Korail
-from ktrains.srt.srt import SRT
 from ktrains.utils import Stations, save_to_log, LINKS
 
 language = st.sidebar.selectbox(
@@ -36,7 +36,7 @@ except:
 # Dictionary of functions
 name_to_class = {
     "korail": Korail,
-    "srt": SRT,
+    "srt": SRTClient,
 }
 
 
